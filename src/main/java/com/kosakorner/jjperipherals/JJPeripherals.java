@@ -1,6 +1,7 @@
 package com.kosakorner.jjperipherals;
 
 import com.kosakorner.jjperipherals.tile.TilePeripheralRelay;
+import cpw.mods.fml.common.event.FMLMissingMappingsEvent;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
@@ -63,10 +64,20 @@ public class JJPeripherals {
         apiMount = new ApiMount(new File(event.getSuggestedConfigurationFile().getParentFile(), "/JJPeripherals"));
 
         Recipes.register();
+
+        proxy.preInit();
+    }
+
+    @EventHandler
+    public void handleRenames(FMLMissingMappingsEvent event) {
+        startupHelper.handleRenames(event);
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        proxy.init();
+        proxy.registerRenderInformation();
+
         ComputerCraftAPI.registerPeripheralProvider(JJPeripherals.Blocks.peripheralRelay);
     }
 
