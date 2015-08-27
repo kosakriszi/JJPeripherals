@@ -16,6 +16,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.config.Configuration;
+import openmods.api.IProxy;
 import openmods.config.BlockInstances;
 import openmods.config.game.ModStartupHelper;
 import openmods.config.game.RegisterBlock;
@@ -37,7 +38,7 @@ public class JJPeripherals {
     public static JJPeripherals instance;
 
     @SidedProxy(clientSide = "com.kosakorner.jjperipherals.proxy.ClientProxy", serverSide = "com.kosakorner.jjperipherals.proxy.CommonProxy")
-    public static CommonProxy proxy;
+    public static IProxy proxy;
 
     public static CreativeTabs tabJJPeripherals = new CreativeTabs("tabJJPeripherals") {
         @Override
