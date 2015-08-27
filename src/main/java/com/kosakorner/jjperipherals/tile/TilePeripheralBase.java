@@ -4,7 +4,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import openmods.api.INeighbourAwareTile;
 import openmods.tileentity.OpenTileEntity;
 
-public abstract class TilePeripheralBase extends OpenTileEntity implements IPeripheral, INeighbourAwareTile {
+public abstract class TilePeripheralBase extends OpenTileEntity implements IPeripheral {
 
     protected String peripheralName;
 

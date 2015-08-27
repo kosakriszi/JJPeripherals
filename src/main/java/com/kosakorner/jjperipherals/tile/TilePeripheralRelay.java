@@ -11,13 +11,14 @@ import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import openmods.api.INeighbourAwareTile;
 import openmods.reflection.MethodAccess;
 import openmods.reflection.ReflectionHelper;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class TilePeripheralRelay extends TilePeripheralBase {
+public class TilePeripheralRelay extends TilePeripheralBase implements INeighbourAwareTile {
 
     private static class Access {
         public final Class<?> ccClass = ReflectionHelper.getClass("dan200.computercraft.ComputerCraft");
@@ -148,17 +149,19 @@ public class TilePeripheralRelay extends TilePeripheralBase {
 
     @Override
     public void onNeighbourChanged(Block block) {
-        final ForgeDirection rotation = getRotation();
+        if (!worldObj.isRemote) {
+            final ForgeDirection rotation = getRotation();
 
-        final int targetX = xCoord + rotation.offsetX;
-        final int targetY = yCoord + rotation.offsetY;
-        final int targetZ = zCoord + rotation.offsetZ;
+            final int targetX = xCoord + rotation.offsetX;
+            final int targetY = yCoord + rotation.offsetY;
+            final int targetZ = zCoord + rotation.offsetZ;
 
-        IPeripheral peripheral = access.getPeripheralAt.call(null, worldObj, targetX, targetY, targetZ, 0);
-        if (peripheral != null) {
-            attachedPeripheral = new WrappedPeripheral(peripheral);
-        } else {
-            attachedPeripheral = null;
+            IPeripheral peripheral = access.getPeripheralAt.call(null, worldObj, targetX, targetY, targetZ, 0);
+            if (peripheral != null) {
+                attachedPeripheral = new WrappedPeripheral(peripheral);
+            } else {
+                attachedPeripheral = null;
+            }
         }
     }
 
