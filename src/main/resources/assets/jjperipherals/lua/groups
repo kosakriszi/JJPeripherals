@@ -1,0 +1,3 @@
+function test()
+    print("We're going to the puzzle place!")
+end

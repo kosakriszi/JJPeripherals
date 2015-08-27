@@ -1,0 +1,16 @@
+[
+{
+  "modid": "jjperipherals",
+  "name": "JJPeripherals",
+  "description": "Jiving Janko Peripherals! Adds ome neat peripherals for ComputerCraft.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["kosakriszi"],
+  "credits": "Masta needed shit coded.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
