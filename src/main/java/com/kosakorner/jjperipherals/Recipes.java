@@ -9,7 +9,7 @@ public class Recipes {
 
     public static void register() {
         if (JJPeripherals.Blocks.peripheralRelay != null) {
-            GameRegistry.addRecipe(new ShapedOreRecipe(JJPeripherals.Blocks.peripheralRelay, "srs", "sss", "sgs", 's', Blocks.stone, 'g', Items.gold_ingot, 'r', Items.redstone));
+            GameRegistry.addRecipe(new ShapedOreRecipe(JJPeripherals.Blocks.peripheralRelay, "srs", "sps", "sgs", 's', Blocks.stone, 'g', Items.gold_ingot, 'r', Items.redstone, 'p', Blocks.piston));
         }
 
     }
