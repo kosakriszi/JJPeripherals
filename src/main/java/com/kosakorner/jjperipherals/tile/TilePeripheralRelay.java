@@ -110,6 +110,7 @@ public class TilePeripheralRelay extends TilePeripheralBase implements INeighbou
                 if (attachedPeripheral != null) {
                     if (arguments.length >= 1) {
                         String[] methods = attachedPeripheral.getMethodNames();
+                        System.out.println(arguments[0].getClass().getCanonicalName());
                         int index = Arrays.asList(methods).indexOf((String) arguments[0]);
                         return attachedPeripheral.callMethod(computer, context, index, Arrays.copyOfRange(arguments, 1, arguments.length));
                     }

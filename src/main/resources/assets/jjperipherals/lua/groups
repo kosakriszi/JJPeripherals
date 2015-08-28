@@ -1,3 +1,91 @@
-function test()
-    print("We're going to the puzzle place!")
+
+local idToRelay = {}
+local relayToId = {}
+local idToName  = {}
+local nameToId  = {}
+
+local groupToId     = {}
+local groupToRelays = {}
+
+local queue = {}
+
+function init()
+    -- Loop through all peripherals
+    for n,sPeripheral in ipairs(peripheral.getNames()) do
+        -- Check if we're dealing with a peripheral relay
+        if string.find(sPeripheral, "peripheral_relay") then
+            -- Wrap the peripheral
+            local pRelay = peripheral.wrap(sPeripheral)
+            -- Generate a (psuedo) unique id
+            local nRelayId = math.random(1, 2147483647)
+            -- Insert the peripheral into the relay tables
+            idToRelay[nRelayId] = sPeripheral
+            relayToId[sPeripheral] = nRelayId
+            idToName[nRelayId] = pRelay.getName()
+            nameToId[pRelay.getName()] = nRelayId
+            -- Iterate through groups
+            local tGroups = pRelay.getGroups()
+            if not #tGroups == 0 then
+                for i=1,#tGroups do
+                    local sGroup = tGroups[i]
+                    -- Make an id for the group if it doesn't exist yet
+                    if groupToId[sGroup] == nil then
+                        local nGroupId = math.random(1, 2147483647)
+                        groupToId[sGroup] = nGroupId
+                    end
+                    -- Make an table for the group if it doesn't exist yet
+                    if groupToRelays[sGroup] == nil then
+                        groupToRelays[groupToId[sGroup]] = {}
+                    end
+                    -- Get the relays table for this group
+                    local tRelayGroup = groupToRelays[groupToId[sGroup]]
+                    table.insert(tRelayGroup,nRelayId)
+                    groupToRelays[groupToId[sGroup]] = tRelayGroup
+                end
+            end
+        end
+    end
 end
+
+function wrapByName(sName)
+    return peripheral.wrap(idToRelay[nameToId[sName]])
+end
+
+function queuePeripheralCall(sName, sMethodName, ...)
+    local tArgs       = {...}
+    local tQueueEntry = {}
+
+    tQueueEntry["peripheral"] = sName
+    tQueueEntry["method"]     = sMethodName
+    tQueueEntry["args"]       = tArgs
+
+    table.insert(queue,tQueueEntry)
+end
+
+function queueGroupCall(sGroup, sMethodName, ...)
+    local tArgs       = {...}
+    local tQueueEntry = {}
+
+    tQueueEntry["group"]  = sGroup
+    tQueueEntry["method"] = sMethodName
+    tQueueEntry["args"]   = tArgs
+
+    table.insert(queue,tQueueEntry)
+end
+
+function executeQueue()
+    for i=1,#queue do
+        local tQueueEntry = queue[i]
+        if tQueueEntry["group"] == nil then
+            local nRelayId = nameToId[tQueueEntry["peripheral"]]
+            peripheral.call(idToRelay[nRelayId], tQueueEntry["method"], tQueueEntry["args"])
+        else
+            local tRelays = groupToRelays[tQueueEntry["group"]]
+            for j=1,#tRelays do
+                peripheral.call(idToRelay[tRelays[i]], tQueueEntry["method"], tQueueEntry["args"])
+            end
+        end
+    end
+end
+
+init()
