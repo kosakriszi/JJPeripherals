@@ -110,9 +110,29 @@ public class TilePeripheralRelay extends TilePeripheralBase implements INeighbou
                 if (attachedPeripheral != null) {
                     if (arguments.length >= 1) {
                         String[] methods = attachedPeripheral.getMethodNames();
-                        System.out.println(arguments[0].getClass().getCanonicalName());
-                        int index = Arrays.asList(methods).indexOf((String) arguments[0]);
-                        return attachedPeripheral.callMethod(computer, context, index, Arrays.copyOfRange(arguments, 1, arguments.length));
+
+                        // We pass in a table for arguments cause we can in the Lua API.
+                        // This makes this code very complicated.
+                        String methodName;
+                        Object[] args;
+                        if (arguments.length >= 2 && arguments[1] instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<Object, Object> map = (HashMap<Object, Object>) arguments[1];
+                            // If this fails so help me.
+                            methodName = (String) map.get(1.0);
+                            List<Object> values = new ArrayList<Object>(map.values());
+                            List<Object> newArgs = new ArrayList<Object>();
+                            for (int i = 1; i < values.size(); i++) {
+                                newArgs.add(values.get(i));
+                            }
+                            args = newArgs.toArray();
+                        }
+                        else {
+                            methodName = (String) arguments[0];
+                            args = Arrays.copyOfRange(arguments, 1, arguments.length);
+                        }
+                        int index = Arrays.asList(methods).indexOf(methodName);
+                        return attachedPeripheral.callMethod(computer, context, index, args);
                     }
                     return new Object[]{"Usage: forward(\"methodName\", [\"args1\"]...])"};
                 }

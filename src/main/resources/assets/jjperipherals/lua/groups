@@ -78,11 +78,11 @@ function executeQueue()
         local tQueueEntry = queue[i]
         if tQueueEntry["group"] == nil then
             local nRelayId = nameToId[tQueueEntry["peripheral"]]
-            peripheral.call(idToRelay[nRelayId], tQueueEntry["method"], tQueueEntry["args"])
+            peripheral.call(idToRelay[nRelayId], "forward", tQueueEntry["method"], tQueueEntry["args"])
         else
             local tRelays = groupToRelays[tQueueEntry["group"]]
             for j=1,#tRelays do
-                peripheral.call(idToRelay[tRelays[i]], tQueueEntry["method"], tQueueEntry["args"])
+                peripheral.call(idToRelay[tRelays[i]], "forward",  tQueueEntry["method"], tQueueEntry["args"])
             end
         end
     end
