@@ -1,4 +1,6 @@
 
+local debug = false
+
 local idToRelay = {}
 local relayToId = {}
 local idToName  = {}
@@ -9,8 +11,13 @@ local groupToRelays = {}
 
 local queue = {}
 
+function enableDebug()
+    debug = true
+end
+
 function init()
     -- Loop through all peripherals
+    if debug == true then print("Discovering peripherals...") end
     for n,sPeripheral in ipairs(peripheral.getNames()) do
         -- Check if we're dealing with a peripheral relay
         if string.find(sPeripheral, "peripheral_relay") then
@@ -25,16 +32,20 @@ function init()
             nameToId[pRelay.getName()] = nRelayId
             -- Iterate through groups
             local tGroups = pRelay.getGroups()
-            if not #tGroups == 0 then
+            if debug == true then print("Peripheral "..sPeripheral.." has "..#tGroups.." groups") end
+            if #tGroups > 0 then
                 for i=1,#tGroups do
                     local sGroup = tGroups[i]
+                    if debug == true then print("Processing group: "..sGroup) end
                     -- Make an id for the group if it doesn't exist yet
                     if groupToId[sGroup] == nil then
+                        if debug == true then print("Group "..sGroup.." doesn't exist yet, creating id") end
                         local nGroupId = math.random(1, 2147483647)
                         groupToId[sGroup] = nGroupId
                     end
                     -- Make an table for the group if it doesn't exist yet
-                    if groupToRelays[sGroup] == nil then
+                    if groupToRelays[groupToId[sGroup]] == nil then
+                        if debug == true then print("Creating entry for group "..sGroup.." in groupToRelays") end
                         groupToRelays[groupToId[sGroup]] = {}
                     end
                     -- Get the relays table for this group
@@ -78,13 +89,19 @@ function executeQueue()
         local tQueueEntry = queue[i]
         if tQueueEntry["group"] == nil then
             local nRelayId = nameToId[tQueueEntry["peripheral"]]
-            peripheral.call(idToRelay[nRelayId], "forward", tQueueEntry["method"], tQueueEntry["args"])
+            peripheral.call(idToRelay[nRelayId], "forward", tQueueEntry["method"], unpack(tQueueEntry["args"]))
         else
-            local tRelays = groupToRelays[tQueueEntry["group"]]
+            local tRelays = groupToRelays[groupToId[tQueueEntry["group"]]]
             for j=1,#tRelays do
-                peripheral.call(idToRelay[tRelays[i]], "forward",  tQueueEntry["method"], tQueueEntry["args"])
+                peripheral.call(idToRelay[tRelays[i]], "forward",  tQueueEntry["method"], unpack(tQueueEntry["args"]))
             end
         end
+    end
+end
+
+function printGroups()
+    for n,s in ipairs(groupToRelays) do
+        print("Group id: "..n)
     end
 end
 
