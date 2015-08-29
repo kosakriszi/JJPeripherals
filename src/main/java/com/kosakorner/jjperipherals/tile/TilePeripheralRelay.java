@@ -52,88 +52,82 @@ public class TilePeripheralRelay extends TilePeripheralBase implements INeighbou
 
     @Override
     public Object[] callMethod(IComputerAccess computer, ILuaContext context, int method, Object[] arguments) throws LuaException, InterruptedException {
-        try {
-            switch (method) {
-                // getName
-                case 0:
-                    return new Object[]{name};
-                // setName
-                case 1:
-                    if (arguments.length == 1 && arguments[0] instanceof String) {
-                        name = (String) arguments[0];
-                        return new Object[]{true};
+        switch (method) {
+            // getName
+            case 0:
+                return new Object[]{name};
+            // setName
+            case 1:
+                if (arguments.length == 1 && arguments[0] instanceof String) {
+                    name = (String) arguments[0];
+                    return new Object[]{true};
+                }
+                return new Object[]{false};
+            // getGroups
+            case 2:
+                Map<Object, Object> table = new HashMap<Object, Object>();
+                for (int i = 0; i < groups.size(); i++) {
+                    table.put(i + 1, groups.get(i));
+                }
+                return new Object[]{table};
+            // setGroups
+            case 3:
+                if (arguments.length >= 1) {
+                    List<String> newGroups = new ArrayList<String>();
+                    for (Object arg : arguments) {
+                        if (arg instanceof String) {
+                            newGroups.add((String) arg);
+                        }
                     }
-                    return new Object[]{false};
-                // getGroups
-                case 2:
-                    Map<Object, Object> table = new HashMap<Object, Object>();
-                    for (int i = 0; i < groups.size(); i++) {
-                        table.put(i + 1, groups.get(i));
+                    groups = newGroups;
+                    return new Object[]{true};
+                }
+                return new Object[]{"Usage: setGroups(\"group1\", [\"group2\"]..."};
+            // addGroup
+            case 4:
+                if (arguments.length == 1 && arguments[0] instanceof String) {
+                    boolean success = groups.add((String) arguments[0]);
+                    return new Object[]{success};
+                }
+                return new Object[]{false};
+            // removeGroup
+            case 5:
+                if (arguments.length == 1 && arguments[0] instanceof String) {
+                    boolean success = groups.remove((String) arguments[0]);
+                    return new Object[]{success};
+                }
+                return new Object[]{false};
+            // getAttachedType
+            case 6:
+                if (attachedPeripheral != null) {
+                    return new Object[]{attachedPeripheral.getType()};
+                }
+                return new Object[]{"No peripheral attached!"};
+            // getAttachedMethods
+            case 7:
+                if (attachedPeripheral != null) {
+                    String[] methods = attachedPeripheral.getMethodNames();
+                    table = new HashMap<Object, Object>();
+                    for (int i = 0; i < methods.length; i++) {
+                        table.put(i + 1, methods[i]);
                     }
                     return new Object[]{table};
-                // setGroups
-                case 3:
+                }
+                return new Object[]{"No peripheral attached!"};
+            // forward
+            case 8:
+                if (attachedPeripheral != null) {
                     if (arguments.length >= 1) {
-                        List<String> newGroups = new ArrayList<String>();
-                        for (Object arg : arguments) {
-                            if (arg instanceof String) {
-                                newGroups.add((String) arg);
-                            }
-                        }
-                        groups = newGroups;
-                        return new Object[]{true};
-                    }
-                    return new Object[]{"Usage: setGroups(\"group1\", [\"group2\"]..."};
-                // addGroup
-                case 4:
-                    if (arguments.length == 1 && arguments[0] instanceof String) {
-                        boolean success = groups.add((String) arguments[0]);
-                        return new Object[]{success};
-                    }
-                    return new Object[]{false};
-                // removeGroup
-                case 5:
-                    if (arguments.length == 1 && arguments[0] instanceof String) {
-                        boolean success = groups.remove((String) arguments[0]);
-                        return new Object[]{success};
-                    }
-                    return new Object[]{false};
-                // getAttachedType
-                case 6:
-                    if (attachedPeripheral != null) {
-                        return new Object[]{attachedPeripheral.getType()};
-                    }
-                    return new Object[]{"No peripheral attached!"};
-                // getAttachedMethods
-                case 7:
-                    if (attachedPeripheral != null) {
                         String[] methods = attachedPeripheral.getMethodNames();
-                        table = new HashMap<Object, Object>();
-                        for (int i = 0; i < methods.length; i++) {
-                            table.put(i + 1, methods[i]);
-                        }
-                        return new Object[]{table};
-                    }
-                    return new Object[]{"No peripheral attached!"};
-                // forward
-                case 8:
-                    if (attachedPeripheral != null) {
-                        if (arguments.length >= 1) {
-                            String[] methods = attachedPeripheral.getMethodNames();
 
-                            String methodName = (String) arguments[0];
-                            Object[] args = Arrays.copyOfRange(arguments, 1, arguments.length);
-                            int index = Arrays.asList(methods).indexOf(methodName);
-                            return attachedPeripheral.callMethod(computer, context, index, args);
-                        }
-                        return new Object[]{"Usage: forward(\"methodName\", [\"args1\"]...])"};
+                        String methodName = (String) arguments[0];
+                        Object[] args = Arrays.copyOfRange(arguments, 1, arguments.length);
+                        int index = Arrays.asList(methods).indexOf(methodName);
+                        return attachedPeripheral.callMethod(computer, context, index, args);
                     }
-                    return new Object[]{"No peripheral attached!"};
-            }
-        }
-        catch (Exception e) {
-            // Wrap this entire thing so people can report actual code bugs.
-            e.printStackTrace();
+                    return new Object[]{"Usage: forward(\"methodName\", [\"args1\"]...])"};
+                }
+                return new Object[]{"No peripheral attached!"};
         }
         return null;
     }
