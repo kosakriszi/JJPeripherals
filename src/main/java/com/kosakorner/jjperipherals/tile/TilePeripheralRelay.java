@@ -33,7 +33,7 @@ public class TilePeripheralRelay extends TilePeripheralBase implements INeighbou
 
     private String name = "peripheral_relay";
     private List<String> groups = new ArrayList<String>() {{
-        add("null");
+        add("default");
     }};
 
     public TilePeripheralRelay() {
