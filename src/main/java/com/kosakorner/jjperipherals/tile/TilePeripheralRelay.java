@@ -158,7 +158,13 @@ public class TilePeripheralRelay extends TilePeripheralBase implements INeighbou
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
         if (tag.hasKey("groups")) {
-            Collections.addAll(groups, tag.getString("groups").split(Pattern.quote("|")));
+            // This really shouldn't be necessary, but APPARENTLY it is
+            String[] readGroups = tag.getString("groups").split(Pattern.quote("|"));
+            for (String group : readGroups) {
+                if (!groups.contains(group)) {
+                    groups.add(group);
+                }
+            }
         }
         if (tag.hasKey("name")) {
             name = tag.getString("name");
